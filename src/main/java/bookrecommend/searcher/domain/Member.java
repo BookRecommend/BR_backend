@@ -26,7 +26,7 @@ public class Member {
     private String region;
     private String subregion;
 
-    @OneToMany(mappedBy = "member")
+    @OneToMany(mappedBy = "member") // bookhistory의 member entity 참조.
     @JsonManagedReference
     private List<BookHistory> history;
 

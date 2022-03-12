@@ -144,10 +144,10 @@ public class ExternalAPIService {
         Mono<LibraryResponse> libraryResponse = librarySearch(region,subregion);
         Flux<LibraryResponse.Lib> libs = libraryResponse.flatMapMany(t-> Flux.fromStream(t.getResponse().getLibs().stream()));
         Flux<LibraryResponse> result = libs.map(t->libraryHasBook(t.getLib().getLibCode(),isbn)).flatMap(x->x);
-        Flux<LibraryBookResponse> libraries = Flux.zip(libs,result).log()
-                .flatMap(tuple-> Flux.just(Tuples.of(tuple.getT1().getLib(),tuple.getT2().getResponse().getResult().getHasBook(), tuple.getT2().getResponse().getResult()))).log()
-                .filter(a ->a.getT2().equals("Y")).log()
-                .flatMap(ele -> Flux.just(new LibraryBookResponse(ele.getT1().getLibName(),ele.getT1().getAddress(),ele.getT1().getLatitude(),ele.getT1().getLongitude(),ele.getT3().getLoanAvailable()))).log();
+        Flux<LibraryBookResponse> libraries = Flux.zip(libs,result)//.log()
+                .flatMap(tuple-> Flux.just(Tuples.of(tuple.getT1().getLib(),tuple.getT2().getResponse().getResult().getHasBook(), tuple.getT2().getResponse().getResult())))//.log()
+                .filter(a ->a.getT2().equals("Y"))//.log()
+                .flatMap(ele -> Flux.just(new LibraryBookResponse(ele.getT1().getLibName(),ele.getT1().getAddress(),ele.getT1().getLatitude(),ele.getT1().getLongitude(),ele.getT3().getLoanAvailable())));//.log();
 
 
 
