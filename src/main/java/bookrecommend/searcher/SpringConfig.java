@@ -1,21 +1,18 @@
 package bookrecommend.searcher;
 
 import bookrecommend.searcher.aop.TimeTraceAop;
-import bookrecommend.searcher.repository.BookRepository;
 import bookrecommend.searcher.repository.MemberRepository;
-import bookrecommend.searcher.repository.MemoryBookRepository;
-import bookrecommend.searcher.repository.MemoryMemberRepository;
+import bookrecommend.searcher.repository.MySQLHistoryRepository;
+import bookrecommend.searcher.repository.MySQLMemberRepository;
 import bookrecommend.searcher.service.ExternalAPIService;
 import bookrecommend.searcher.service.MemberService;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -46,11 +43,11 @@ public class SpringConfig implements WebMvcConfigurer{
     }
 
     @Bean
-    public MemberRepository memberRepository(){ return new MemoryMemberRepository(em);
+    public MemberRepository memberRepository(){ return new MySQLMemberRepository(em);
     }
 
     @Bean
-    public BookRepository bookRepository(){return new MemoryBookRepository(em);
+    public MySQLHistoryRepository bookRepository(){return new MySQLHistoryRepository(em);
     }
 
     @Bean

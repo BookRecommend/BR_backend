@@ -5,10 +5,10 @@ import bookrecommend.searcher.domain.Member;
 import javax.persistence.EntityManager;
 import java.util.*;
 
-public class MemoryMemberRepository implements MemberRepository{
+public class MySQLMemberRepository implements MemberRepository{
     private final EntityManager em;
 
-    public MemoryMemberRepository(EntityManager em) {
+    public MySQLMemberRepository(EntityManager em) {
         this.em = em;
     }
 

@@ -1,6 +1,5 @@
 package bookrecommend.searcher.service.DTO;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,5 +21,11 @@ public class NaverResponse {
         private String isbn;
         private String description;
         private String pubdate;
+
+        public BookSearchResult(){};
+        public BookSearchResult(String description){
+            this.description = description;
+        }
+
     }
 }

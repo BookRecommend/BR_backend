@@ -27,7 +27,7 @@ public class ExternalAPIService {
         this.env = env;
     }
 
-    public NaverResponse naverBookSearch(String query){
+    public Mono<NaverResponse> naverBookSearch(String query){
          String clientId = env.getProperty("naverbooksearch.clientID");
          String clientSecret = env.getProperty("naverbooksearch.clientsecret");
          String display ="50";
@@ -45,7 +45,7 @@ public class ExternalAPIService {
                  .uri(text)
                  .accept(MediaType.APPLICATION_JSON)
                  .retrieve()
-                 .bodyToMono(NaverResponse.class).block();
+                 .bodyToMono(NaverResponse.class);
 
 //                 .bodyToMono(String.class)
 //                 .block();

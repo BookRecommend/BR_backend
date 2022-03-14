@@ -1,6 +1,5 @@
 package bookrecommend.searcher.repository;
 
-import bookrecommend.searcher.domain.BookHistory;
 import bookrecommend.searcher.domain.Member;
 
 import java.util.List;

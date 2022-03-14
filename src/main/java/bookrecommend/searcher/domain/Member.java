@@ -1,12 +1,9 @@
 package bookrecommend.searcher.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Tolerate;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

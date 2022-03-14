@@ -14,7 +14,9 @@ public class ResultDto {
     public static class Info{
         private String price;
         private String stock;
+        private String link;
         private int bookId;
+        private String description;
         private List<Library> libraries;
     }
 
@@ -30,6 +32,7 @@ public class ResultDto {
         private String isbn;
         private String image;
         private Boolean frommypage;
+        private Boolean isExtraSearchNeeded;
     }
 
 

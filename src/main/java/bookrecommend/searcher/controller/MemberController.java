@@ -8,6 +8,7 @@ import bookrecommend.searcher.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.NoSuchElementException;
 
 @RestController // restapi 기능만 수행할시.
@@ -22,6 +23,7 @@ public class MemberController {
         try {
             RegisterResponse response = memberService.checkRegisteredJoin(req.getUsername());
             Member member = response.getMember();
+            Collections.reverse(member.getHistory());
             MemberDto.Info info = MemberDto.Info.builder()
                     .username(member.getMemberId())
                     .age(member.getAge())

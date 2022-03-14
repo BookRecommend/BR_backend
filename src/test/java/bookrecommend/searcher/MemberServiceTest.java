@@ -2,7 +2,6 @@ package bookrecommend.searcher;
 
 import bookrecommend.searcher.domain.BookHistory;
 import bookrecommend.searcher.domain.Member;
-import bookrecommend.searcher.repository.MemberRepository;
 import bookrecommend.searcher.service.MemberService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

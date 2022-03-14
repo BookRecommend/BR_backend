@@ -7,7 +7,6 @@ import bookrecommend.searcher.controller.DTO.SearchDto;
 import bookrecommend.searcher.domain.BookHistory;
 import bookrecommend.searcher.service.*;
 import bookrecommend.searcher.service.DTO.AladdinResponse;
-import bookrecommend.searcher.service.DTO.LibraryBookResponse;
 import bookrecommend.searcher.service.DTO.LibraryResponse;
 import bookrecommend.searcher.service.DTO.NaverResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,7 @@ public class APIController {
     @GetMapping("/search")
     public SearchDto.Response search(@RequestParam String query){
 
-        NaverResponse naverResponse = externalAPIService.naverBookSearch(query);
+        NaverResponse naverResponse = externalAPIService.naverBookSearch(query).block();
         List<SearchDto.SrcResult> list = new ArrayList<>();
 
         for(NaverResponse.BookSearchResult ele : naverResponse.getItems()){
@@ -76,6 +75,7 @@ public class APIController {
                     .title(ele.getTitle())
                     .author(ele.getAuthor())
                     .image(ele.getCover())
+                    .year(ele.getPubDate().substring(0,4))
                     .publisher(ele.getPublisher())
                     .isbn(ele.getIsbn13())
                     .build());
@@ -118,6 +118,11 @@ public class APIController {
         try {
             BookHistory history =(req.getFrommypage()) ? BookHistory.builder().build() : memberService.saveHistory(req.getUsername(),req.getTitle(),req.getDate(), req.getAuthor(), req.getPublisher(), req.getIsbn(),req.getImage());
             //알라딘 서점 책 검색
+            Mono<NaverResponse.BookSearchResult> naverResponse = (req.getIsExtraSearchNeeded()) ? externalAPIService.naverBookSearch(req.getIsbn())
+                    .map(t-> t.getItems().get(0))
+                    .defaultIfEmpty(new NaverResponse.BookSearchResult())
+                    : Mono.just(new NaverResponse.BookSearchResult());
+
             Mono<AladdinResponse.Book> aladdinResponse = externalAPIService.aladdinSearch(req.getIsbn(), req.getTitle())
                                                     .map(t->t.getItem().get(0))
                                                     .defaultIfEmpty(new AladdinResponse.Book("unknown","unknown"));
@@ -129,12 +134,14 @@ public class APIController {
                     .flatMap(t->Flux.just(new ResultDto.Library(t.getName(),t.getAddress(),t.getLatitude(),t.getLongitude(),t.getAvailable())))
                     .collectList();
 
-            ResultDto.Info info = Mono.zip(aladdinResponse,libraryResponse)
+            ResultDto.Info info = Mono.zip(aladdinResponse,libraryResponse, naverResponse)
                     .map(tuple -> ResultDto.Info.builder()
                             .price(tuple.getT1().getPriceSales())
+                            .link(tuple.getT1().getLink())
                             .stock((tuple.getT1().getStockStatus().equals("")) ? "available" : "not available")
                             .libraries(tuple.getT2())
                             .bookId(history.getBookId())
+                            .description(tuple.getT3().getDescription())
                             .build())
                     .block();
 

@@ -35,5 +35,6 @@ public class PopularLoanDto {
         private String isbn;
         private String image;
         private String year;
+        private String description;
     }
 }

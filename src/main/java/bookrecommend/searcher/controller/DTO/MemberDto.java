@@ -1,7 +1,6 @@
 package bookrecommend.searcher.controller.DTO;
 
 import bookrecommend.searcher.domain.BookHistory;
-import bookrecommend.searcher.domain.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

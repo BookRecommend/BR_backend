@@ -7,11 +7,11 @@ import javax.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 
-public class MemoryBookRepository implements BookRepository{
+public class MySQLHistoryRepository implements HistoryRepository {
 
     private final EntityManager em;
 
-    public MemoryBookRepository(EntityManager em) {
+    public MySQLHistoryRepository(EntityManager em) {
         this.em = em;
     }
 
@@ -30,10 +30,11 @@ public class MemoryBookRepository implements BookRepository{
         return bookHistory;
     }
 
+
     @Override
-    public Optional<BookHistory> findById(String bookId) {
-        BookHistory bookHistory = em.find(BookHistory.class, bookId);
-        return Optional.ofNullable(bookHistory);
+    public Optional<BookHistory> findById(int bookId) {
+        BookHistory history = em.find(BookHistory.class, bookId);
+        return Optional.ofNullable(history);
     }
 
     @Override
@@ -43,7 +44,7 @@ public class MemoryBookRepository implements BookRepository{
 
     @Override
     public void delete(int bookId) {
-        BookHistory bookHistory = em.find(BookHistory.class, bookId);
-        em.remove(bookHistory);
+        BookHistory history = em.find(BookHistory.class, bookId);
+        em.remove(history);
     }
 }
