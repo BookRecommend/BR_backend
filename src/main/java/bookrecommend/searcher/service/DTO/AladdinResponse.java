@@ -16,7 +16,9 @@ public class AladdinResponse {
     @Setter
     public static class Book {
         private String title;
+        private String link;
         private String description;
+        private String pubDate;
         private String author;
         private String publisher;
         private String isbn13;
