@@ -23,14 +23,14 @@ public class MemberController {
         try {
             RegisterResponse response = memberService.checkRegisteredJoin(req.getUsername());
             Member member = response.getMember();
-            if(member.getHistory().isPresent()) Collections.reverse(member.getHistory().get());
+            if(!member.getHistory().isEmpty()) Collections.reverse(member.getHistory());
             MemberDto.Info info = MemberDto.Info.builder()
                     .username(member.getMemberId())
                     .age(member.getAge())
                     .region(member.getRegion())
                     .subregion(member.getSubregion())
                     .gender(member.getGender())
-                    .history(member.getHistory().get())
+                    .history(member.getHistory())
                     .build();
 
         if(response.getRegistered()) return new MemberDto.Response(info, 200, "registered");
