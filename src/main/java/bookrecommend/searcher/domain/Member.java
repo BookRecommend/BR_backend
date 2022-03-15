@@ -8,7 +8,9 @@ import lombok.Getter;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Builder
 @AllArgsConstructor
@@ -35,6 +37,10 @@ public class Member {
         this.age = age;
         this.region = region;
         this.subregion= subregion;
+    }
+    public List<BookHistory> getHistory(){
+        if(history == null) return new ArrayList<BookHistory>();
+        else return history;
     }
 
 }
