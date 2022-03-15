@@ -23,7 +23,7 @@ public class MemberController {
         try {
             RegisterResponse response = memberService.checkRegisteredJoin(req.getUsername());
             Member member = response.getMember();
-            Collections.reverse(member.getHistory());
+            if(!member.getHistory().isEmpty()) Collections.reverse(member.getHistory());
             MemberDto.Info info = MemberDto.Info.builder()
                     .username(member.getMemberId())
                     .age(member.getAge())
