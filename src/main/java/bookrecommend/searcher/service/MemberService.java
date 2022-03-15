@@ -30,7 +30,7 @@ public class MemberService {
 
 //        return member.isPresent() ?
 //                member.get() : memberRepository.save(userId);
-//
+
         return member.isPresent() ?
                 new RegisterResponse(true,member.get())
                 : new RegisterResponse(false,memberRepository.save(userId));

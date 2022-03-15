@@ -9,6 +9,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import java.util.List;
+import java.util.Optional;
 
 @Builder
 @AllArgsConstructor
@@ -35,6 +36,9 @@ public class Member {
         this.age = age;
         this.region = region;
         this.subregion= subregion;
+    }
+    public Optional<List<BookHistory>> getHistory(){
+        return Optional.ofNullable(history);
     }
 
 }
