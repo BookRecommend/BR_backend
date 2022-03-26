@@ -124,7 +124,8 @@ public class APIController {
                     : Mono.just(new NaverResponse.BookSearchResult());
 
             Mono<AladdinResponse.Book> aladdinResponse = externalAPIService.aladdinSearch(req.getIsbn(), req.getTitle())
-                                                    .map(t->t.getItem().get(0))
+                                                    .map(t->t.getItem())
+                                                    .mapNotNull(t->t.get(0))
                                                     .defaultIfEmpty(new AladdinResponse.Book("unknown","unknown"));
             log.info(req.getUsername(),req.getIsbn());
 

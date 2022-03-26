@@ -9,12 +9,19 @@ import bookrecommend.searcher.service.MemberService;
 import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutHandler;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
+import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 
 import org.springframework.core.env.Environment;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -26,8 +33,11 @@ import reactor.netty.http.client.HttpClient;
 
 import javax.persistence.EntityManager;
 import javax.sql.DataSource;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
-
+@EnableScheduling
+@EnableCaching
 @Configuration
 //@PropertySource("classpath:user.properties")
 public class SpringConfig implements WebMvcConfigurer{
@@ -57,6 +67,14 @@ public class SpringConfig implements WebMvcConfigurer{
     @Bean
     public TimeTraceAop timeTraceAop(){return new TimeTraceAop();
     }
+
+    @Bean
+    public CacheManager cacheManager(){
+        SimpleCacheManager simpleCacheManager = new SimpleCacheManager();
+        simpleCacheManager.setCaches(List.of(new ConcurrentMapCache("libraryNearby",true)));
+        return simpleCacheManager;
+    }
+
 
     @Bean
     public WebClient webClient(){
@@ -115,4 +133,5 @@ public class SpringConfig implements WebMvcConfigurer{
                 .allowedOrigins("*")
                 .allowedMethods("*");
     }
+
 }

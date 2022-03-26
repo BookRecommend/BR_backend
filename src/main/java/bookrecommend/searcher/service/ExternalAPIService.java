@@ -4,23 +4,26 @@ import bookrecommend.searcher.service.DTO.AladdinResponse;
 import bookrecommend.searcher.service.DTO.LibraryBookResponse;
 import bookrecommend.searcher.service.DTO.LibraryResponse;
 import bookrecommend.searcher.service.DTO.NaverResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.tuple.Tuple;
 import reactor.util.function.Tuples;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.annotation.Resource;
 
 
 public class ExternalAPIService {
 
+
     private final WebClient webClient;
     private final Environment env;
+
+
     private final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(getClass());
     public ExternalAPIService(WebClient webClient, Environment env) {
         this.webClient = webClient;
@@ -105,7 +108,9 @@ public class ExternalAPIService {
                 .bodyToMono(AladdinResponse.class);
     }
 
+    @Cacheable(value = "libraryNearby", key ="#region.concat(#subregion)")
     private Mono<LibraryResponse> librarySearch(String region, String subregion){
+//        log.info("cache missed on code :"+region+subregion);
         String baseUrl = "http://data4library.kr/api/libSrch";
         String authKey = env.getProperty("library.authkey");
         String uri = "?";
@@ -123,6 +128,7 @@ public class ExternalAPIService {
                 .retrieve()
                 .bodyToMono(LibraryResponse.class);
     }
+
     private Mono<LibraryResponse> libraryHasBook(String libCode, String isbn){
         String baseUrl = "http://data4library.kr/api/bookExist";
         String authKey = env.getProperty("library.authkey");
@@ -153,6 +159,12 @@ public class ExternalAPIService {
 
         return libraries;
     }
+
+//    @Scheduled(fixedRate = 100000)
+//    @CacheEvict(value = "libraryNearby" ,allEntries = true)
+//    public void clearCache(){
+//        log.info("cache cleared");
+//    }
 
 }
 
