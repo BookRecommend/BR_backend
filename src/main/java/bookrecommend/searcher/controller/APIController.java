@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +28,6 @@ public class APIController {
     @Autowired
     private final MemberService memberService;
 
-    private final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(getClass());
-
     public APIController(ExternalAPIService externalAPIService, MemberService memberService) {
         this.externalAPIService = externalAPIService;
         this.memberService = memberService;
@@ -40,6 +39,7 @@ public class APIController {
         NaverResponse naverResponse = externalAPIService.naverBookSearch(query).block();
         List<SearchDto.SrcResult> list = new ArrayList<>();
 
+        assert naverResponse != null;
         for(NaverResponse.BookSearchResult ele : naverResponse.getItems()){
             list.add(SearchDto.SrcResult.builder()
                     .title(ele.getTitle())
@@ -116,7 +116,7 @@ public class APIController {
     @PostMapping("/result")
     public  ResultDto.Response getResult(@RequestBody ResultDto.Request req){
         try {
-            BookHistory history =(req.getFrommypage()) ? BookHistory.builder().build() : memberService.saveHistory(req.getUsername(),req.getTitle(),req.getDate(), req.getAuthor(), req.getPublisher(), req.getIsbn(),req.getImage());
+
             //알라딘 서점 책 검색
             Mono<NaverResponse.BookSearchResult> naverResponse = (req.getIsExtraSearchNeeded()) ? externalAPIService.naverBookSearch(req.getIsbn())
                     .map(t-> t.getItems().get(0))
@@ -124,10 +124,11 @@ public class APIController {
                     : Mono.just(new NaverResponse.BookSearchResult());
 
             Mono<AladdinResponse.Book> aladdinResponse = externalAPIService.aladdinSearch(req.getIsbn(), req.getTitle())
-                                                    .map(t->t.getItem())
+                                                    .map(AladdinResponse::getItem)
                                                     .mapNotNull(t->t.get(0))
                                                     .defaultIfEmpty(new AladdinResponse.Book("unknown","unknown"));
-            log.info(req.getUsername(),req.getIsbn());
+//            log.info(req.getUsername(),req.getIsbn());
+
 
             //주변 도서관 중 책 보유한 것만 선정
             Mono<List<ResultDto.Library>> libraryResponse =
@@ -135,16 +136,23 @@ public class APIController {
                     .flatMap(t->Flux.just(new ResultDto.Library(t.getName(),t.getAddress(),t.getLatitude(),t.getLongitude(),t.getAvailable())))
                     .collectList();
 
-            ResultDto.Info info = Mono.zip(aladdinResponse,libraryResponse, naverResponse)
-                    .map(tuple -> ResultDto.Info.builder()
-                            .price(tuple.getT1().getPriceSales())
-                            .link(tuple.getT1().getLink())
-                            .stock((tuple.getT1().getStockStatus().equals("")) ? "available" : "not available")
-                            .libraries(tuple.getT2())
-                            .bookId(history.getBookId())
-                            .description(tuple.getT3().getDescription())
-                            .build())
-                    .block();
+            Tuple3<AladdinResponse.Book, List<ResultDto.Library>, NaverResponse.BookSearchResult> tuple = Mono.zip(aladdinResponse,libraryResponse, naverResponse).block();
+            BookHistory history =(req.getFrommypage()) ? BookHistory.builder().build() : memberService.saveHistory(req.getUsername(),req.getTitle(),req.getDate(), req.getAuthor(), req.getPublisher(), req.getIsbn(),req.getImage());
+
+            ResultDto.Info info;
+            if (tuple != null) {
+                info = ResultDto.Info.builder()
+                                    .price(tuple.getT1().getPriceSales())
+                                    .link(tuple.getT1().getLink())
+                                    .stock((tuple.getT1().getStockStatus().equals("")) ? "available" : "not available")
+                                    .libraries(tuple.getT2())
+                                    .bookId(history.getBookId())
+                                    .description(tuple.getT3().getDescription())
+                                    .build();
+            }else{
+                throw new Exception();
+            }
+
 
             return new ResultDto.Response(info, 200, "success");
 
