@@ -4,17 +4,12 @@ import bookrecommend.searcher.service.DTO.AladdinResponse;
 import bookrecommend.searcher.service.DTO.LibraryBookResponse;
 import bookrecommend.searcher.service.DTO.LibraryResponse;
 import bookrecommend.searcher.service.DTO.NaverResponse;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuples;
-
-import javax.annotation.Resource;
 
 
 public class ExternalAPIService {
@@ -95,7 +90,7 @@ public class ExternalAPIService {
                 .bodyToMono(LibraryResponse.class).block();
     }
 
-    public Mono<AladdinResponse> aladdinSearch(String isbn, String title){
+    public Mono<AladdinResponse> aladdinSearch(String isbn){
         String ttbKey = env.getProperty("aladdinbestseller.ttb");
         String baseUrl = "http://www.aladin.co.kr/ttb/api/ItemLookUp.aspx";
         return  webClient.mutate()
@@ -108,7 +103,7 @@ public class ExternalAPIService {
                 .bodyToMono(AladdinResponse.class);
     }
 
-    @Cacheable(value = "libraryNearby", key ="#region.concat(#subregion)")
+//    @Cacheable(value = "libraryNearby", key ="#region.concat(#subregion)")
     private Mono<LibraryResponse> librarySearch(String region, String subregion){
 //        log.info("cache missed on code :"+region+subregion);
         String baseUrl = "http://data4library.kr/api/libSrch";
@@ -149,7 +144,7 @@ public class ExternalAPIService {
     public Flux<LibraryBookResponse> showBookStatus(String isbn, String region, String subregion){
         Mono<LibraryResponse> libraryResponse = librarySearch(region,subregion);
         Flux<LibraryResponse.Lib> libs = libraryResponse.flatMapMany(t-> Flux.fromStream(t.getResponse().getLibs().stream()));
-        Flux<LibraryResponse> result = libs.map(t->libraryHasBook(t.getLib().getLibCode(),isbn)).flatMap(x->x);
+        Flux<LibraryResponse> result = libs.flatMap(t->libraryHasBook(t.getLib().getLibCode(),isbn));//.flatMap(x->x);
         Flux<LibraryBookResponse> libraries = Flux.zip(libs,result)//.log()
                 .flatMap(tuple-> Flux.just(Tuples.of(tuple.getT1().getLib(),tuple.getT2().getResponse().getResult().getHasBook(), tuple.getT2().getResponse().getResult())))//.log()
                 .filter(a ->a.getT2().equals("Y"))//.log()
