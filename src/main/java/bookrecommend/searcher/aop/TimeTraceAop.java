@@ -3,24 +3,27 @@ package bookrecommend.searcher.aop;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 @Aspect
 public class TimeTraceAop {
-    @Around("execution(* bookrecommend.searcher..*(..)) && !target(bookrecommend.searcher.SpringConfig)")
 
+    private final Logger logger =  LoggerFactory.getLogger(this.getClass());
+
+    @Around("execution(* bookrecommend.searcher..*(..)) && !target(bookrecommend.searcher.SpringConfig)")
     public Object execute(ProceedingJoinPoint joinPoint) throws Throwable{
         long start = System.currentTimeMillis();
-        System.out.println("START: "+ joinPoint.toString());
-
-        try{
+        logger.info(" START: "+ joinPoint.toString());
+               try{
             return joinPoint.proceed();
         }finally{
             long finish = System.currentTimeMillis();
             long elapsedTime = finish - start;
 
-            System.out.println("END: "+ joinPoint.toString()+ " " +elapsedTime+"ms");
+            logger.info("END: "+ joinPoint+ " " +elapsedTime+"ms");
+
         }
     }
 }

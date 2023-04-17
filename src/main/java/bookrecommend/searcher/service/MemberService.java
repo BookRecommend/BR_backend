@@ -4,7 +4,6 @@ import bookrecommend.searcher.domain.BookHistory;
 import bookrecommend.searcher.domain.Member;
 import bookrecommend.searcher.repository.HistoryRepository;
 import bookrecommend.searcher.repository.MemberRepository;
-import bookrecommend.searcher.repository.MySQLHistoryRepository;
 import bookrecommend.searcher.service.DTO.RegisterResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 
